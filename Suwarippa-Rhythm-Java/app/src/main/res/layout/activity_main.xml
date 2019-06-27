@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <Button android:id="@+id/connectButton"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:text="Connect"
+        android:layout_margin="10dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        />
+    <Button android:id="@+id/startButton"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:text="Start"
+        android:layout_margin="10dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        />
+    <TextView
+        android:id="@+id/statusValue"
+        android:layout_width="wrap_content"
+        android:layout_height="80dp"
+        android:textColor="#ffffff"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:textSize="30px"
+        />
+    <TextView
+        android:id="@+id/inputValue"
+        android:layout_width="fill_parent"
+        android:layout_height="60dp"
+        android:layout_alignParentTop="true"
+        android:paddingLeft="150dp"
+        android:paddingTop="17dp"
+        android:textColor="#ffffff"
+        android:textSize="60px"
+        />
+
+
+</android.support.constraint.ConstraintLayout>
