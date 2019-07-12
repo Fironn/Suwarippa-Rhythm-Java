@@ -6,41 +6,41 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <Button android:id="@+id/connectButton"
-        android:layout_width="100dp"
-        android:layout_height="50dp"
-        android:text="Connect"
-        android:layout_margin="10dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        />
-    <Button android:id="@+id/startButton"
-        android:layout_width="100dp"
-        android:layout_height="50dp"
-        android:text="Start"
-        android:layout_margin="10dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        />
-    <TextView
-        android:id="@+id/statusValue"
-        android:layout_width="wrap_content"
-        android:layout_height="80dp"
-        android:textColor="#ffffff"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:textSize="30px"
-        />
-    <TextView
-        android:id="@+id/inputValue"
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="fill_parent"
-        android:layout_height="60dp"
-        android:layout_alignParentTop="true"
-        android:paddingLeft="150dp"
-        android:paddingTop="17dp"
-        android:textColor="#ffffff"
-        android:textSize="60px"
-        />
+        android:layout_height="fill_parent"
+        android:orientation="vertical"
+        tools:layout_editor_absoluteY="203dp">
+
+        <Button
+            android:id="@+id/connectButton"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/connect" />
+
+        <TextView
+            android:id="@+id/statusValue"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/inputValue"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+
+        <Button
+            android:id="@+id/writeButton"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/write" />
+
+        <Button
+            android:id="@+id/start"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="start" />
+
+    </LinearLayout>
 
 
 </android.support.constraint.ConstraintLayout>

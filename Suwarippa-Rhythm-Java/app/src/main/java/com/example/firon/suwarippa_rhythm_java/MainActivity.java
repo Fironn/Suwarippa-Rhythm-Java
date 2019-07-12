@@ -1,70 +1,63 @@
 package com.example.firon.suwarippa_rhythm_java;
-import android.Manifest;
+
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.content.Context;
-import android.content.res.AssetFileDescriptor;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.RotateAnimation;
+import android.view.animation.ScaleAnimation;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Set;
 import java.util.UUID;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
-
-import android.widget.Toast;
-
-
 
 public class MainActivity extends Activity implements Runnable, View.OnClickListener {
-    /** tag. */
+    /* tag */
     private static final String TAG = "BluetoothSample";
 
-    private MediaPlayer mediaPlayer;
-
-    /** Bluetooth Adapter.  */
+    /* Bluetooth Adapter */
     private BluetoothAdapter mAdapter;
 
-    /** Bluetoothデバイス. */
+    /* Bluetoothデバイス */
     private BluetoothDevice mDevice;
 
-    /** Bluetooth UUID. */
-    private final UUID MY_UUID = UUID.fromString("00002A00-0000-1000-8000-00805F9B34FB");
+    /* Bluetooth UUID */
+    private final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
-    /** デバイス名. */
-    private final String DEVICE_NAME = "RNBT-2F78";
+    /* デバイス名 */
+    private final String DEVICE_NAME = "RNBT-205F";
 
-    /** Soket. */
+    /* Soket */
     private BluetoothSocket mSocket;
 
-    /** Thread. */
+    /* Thread */
     private Thread mThread;
 
-    /** Threadの状態を表す. */
+    /* Threadの状態を表す */
     private boolean isRunning;
 
     /** 接続ボタン. */
     private Button connectButton;
-    private Button startButton;
-
 
     /** 書込みボタン. */
-//    private Button writeButton;
+    private Button writeButton;
+
+    private Button buttonFadeIn;
+
+    private Button startButton;
 
     /** ステータス. */
     private TextView mStatusTextView;
@@ -80,59 +73,51 @@ public class MainActivity extends Activity implements Runnable, View.OnClickList
 
     /** Connect確認用フラグ */
     private boolean connectFlg = false;
-    private int i=0;
 
     /** BluetoothのOutputStream. */
     OutputStream mmOutputStream = null;
 
+    private ImageView imageView;
+
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-
-
+    public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        WebView myWebView = (WebView)findViewById(R.id.webView1);
-
-//        レイアウトで指定したWebViewのIDを指定する。
-        myWebView.setWebViewClient(new WebViewClient());
-
-
 
         mInputTextView = (TextView)findViewById(R.id.inputValue);
         mStatusTextView = (TextView)findViewById(R.id.statusValue);
 
         connectButton = (Button)findViewById(R.id.connectButton);
-        startButton = (Button)findViewById(R.id.startButton);
-
-//        writeButton = (Button)findViewById(R.id.writeButton);
+        writeButton = (Button)findViewById(R.id.writeButton);
+        startButton = (Button)findViewById(R.id.start);
 
         connectButton.setOnClickListener(this);
+        writeButton.setOnClickListener(this);
         startButton.setOnClickListener(this);
-
-//        writeButton.setOnClickListener(this);
 
         // Bluetoothのデバイス名を取得
         // デバイス名は、RNBT-XXXXになるため、
         // DVICE_NAMEでデバイス名を定義
         mAdapter = BluetoothAdapter.getDefaultAdapter();
         mStatusTextView.setText("SearchDevice");
-        Set< BluetoothDevice > devices = mAdapter.getBondedDevices();
-        for ( BluetoothDevice device : devices){
-            if(device.getName().equals(DEVICE_NAME)){
-                mStatusTextView.setText("find: " + device.getName());
-                mDevice = device;
+
+        if (mAdapter != null && mAdapter.isEnabled()) {
+            // do your task
+            Set<BluetoothDevice> devices = mAdapter.getBondedDevices();
+
+            for ( BluetoothDevice device : devices){
+
+                if(device.getName().equals(DEVICE_NAME)){
+                    mStatusTextView.setText("find: " + device.getName());
+                    mDevice = device;
+                }
             }
+
+        } else {
+            // Bluetooth is not supported on your hardware
         }
 
-        if (!connectFlg) {
-            mStatusTextView.setText("try connect");
-
-            mThread = new Thread(this);
-            // Threadを起動し、Bluetooth接続
-            isRunning = true;
-            mThread.start();
-        }
     }
 
     @Override
@@ -177,28 +162,20 @@ public class MainActivity extends Activity implements Runnable, View.OnClickList
 
             while(isRunning){
 
-
                 // InputStreamの読み込み
                 bytes = mmInStream.read(buffer);
-//                Log.i(TAG, "bytes=" + bytes);
+                Log.i(TAG,"bytes="+bytes);
                 // String型に変換
                 String readMsg = new String(buffer, 0, bytes);
 
                 // null以外なら表示
                 if(readMsg.trim() != null && !readMsg.trim().equals("")){
-//                    Log.i(TAG,"value="+readMsg.trim());
+                    Log.i(TAG,"value="+readMsg.trim());
 
                     valueMsg = new Message();
                     valueMsg.what = VIEW_INPUT;
-
                     valueMsg.obj = readMsg;
                     mHandler.sendMessage(valueMsg);
-//                    System.out.println(valueMsg.obj);
-//                    sample.sendData.main(null, new Integer(readMsg));
-//                    com.example.firon.pressrhythm.writeFile.write(null,new Integer(readMsg));
-
-//                    i++;
-//                    if(i>=4)i=0;
                 }
                 else{
                     // Log.i(TAG,"value=nodata");
@@ -222,7 +199,6 @@ public class MainActivity extends Activity implements Runnable, View.OnClickList
 
     @Override
     public void onClick(View v) {
-
         if(v.equals(connectButton)) {
             // 接続されていない場合のみ
             if (!connectFlg) {
@@ -233,25 +209,25 @@ public class MainActivity extends Activity implements Runnable, View.OnClickList
                 isRunning = true;
                 mThread.start();
             }
+        } else if(v.equals(writeButton)) {
+            // 接続中のみ書込みを行う
+            if (connectFlg) {
+                try {
+                    mmOutputStream.write("2".getBytes());
+                    mStatusTextView.setText("Write:");
+                } catch (IOException e) {
+                    Message valueMsg = new Message();
+                    valueMsg.what = VIEW_STATUS;
+                    valueMsg.obj = "Error3:" + e;
+                    mHandler.sendMessage(valueMsg);
+                }
+            } else {
+                mStatusTextView.setText("Please push the connect button");
+            }
         }else if(v.equals(startButton)){
-
+            Intent intent = new Intent(getApplication(), Start.class);
+            startActivity(intent);
         }
-//        else if(v.equals(writeButton)) {
-//            // 接続中のみ書込みを行う
-//            if (connectFlg) {
-//                try {
-//                    mmOutputStream.write("2".getBytes());
-//                    mStatusTextView.setText("Write:");
-//                } catch (IOException e) {
-//                    Message valueMsg = new Message();
-//                    valueMsg.what = VIEW_STATUS;
-//                    valueMsg.obj = "Error3:" + e;
-//                    mHandler.sendMessage(valueMsg);
-//                }
-//            } else {
-//                mStatusTextView.setText("Please push the connect button");
-//            }
-//        }
     }
 
     /**
@@ -271,80 +247,24 @@ public class MainActivity extends Activity implements Runnable, View.OnClickList
         }
     };
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
+    private void setAnime(){
+        ScaleAnimation scaleAnimation = new ScaleAnimation(1.0f, 0.0f, 1.0f, 0.0f,
+                Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        // animation時間 msec
+        scaleAnimation.setDuration(2000);
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+        RotateAnimation rotate = new RotateAnimation(0.0f, 120.0f,
+                Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT, 0.5f);
+        // animation時間 msec
+        rotate.setDuration(2000);
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
+        AnimationSet animationSet = new AnimationSet( true );
 
-        return super.onOptionsItemSelected(item);
-    }
+        // animationSetにそれぞれ追加する
+        animationSet.addAnimation( scaleAnimation );
+        animationSet.addAnimation( rotate );
 
-    private boolean audioSetup(){
-        boolean fileCheck = false;
-
-        // インタンスを生成
-        mediaPlayer = new MediaPlayer();
-
-        //音楽ファイル名, あるいはパス
-        String filePath = "Nolove.mp3";
-
-        // assetsから mp3 ファイルを読み込み
-        try{
-            AssetFileDescriptor afdescripter = getAssets().openFd(filePath);
-            // MediaPlayerに読み込んだ音楽ファイルを指定
-            mediaPlayer.setDataSource(afdescripter.getFileDescriptor(),
-                    afdescripter.getStartOffset(),
-                    afdescripter.getLength());
-            // 音量調整を端末のボタンに任せる
-            setVolumeControlStream(AudioManager.STREAM_MUSIC);
-            mediaPlayer.prepare();
-            fileCheck = true;
-        } catch (IOException e1) {
-            e1.printStackTrace();
-        }
-        System.out.println(fileCheck);
-
-
-        return fileCheck;
-    }
-
-    private void audioPlay() {
-
-        if (mediaPlayer == null) {
-            // audio ファイルを読出し
-            if (audioSetup()){
-                Toast.makeText(getApplication(), "Rread audio file", Toast.LENGTH_SHORT).show();
-            }
-            else{
-                Toast.makeText(getApplication(), "Error: read audio file", Toast.LENGTH_SHORT).show();
-                return;
-            }
-        }
-        else{
-            // 繰り返し再生する場合
-            mediaPlayer.stop();
-            mediaPlayer.reset();
-            // リソースの解放
-            mediaPlayer.release();
-        }
-
-        // 再生する
-        mediaPlayer.start();
-        System.out.println("music");
+        imageView.startAnimation(animationSet);
     }
 
 
