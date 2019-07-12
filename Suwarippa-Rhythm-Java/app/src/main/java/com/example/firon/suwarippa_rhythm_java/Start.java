@@ -31,8 +31,6 @@ public class Start extends Activity implements View.OnClickListener,MediaPlayer.
     private Button startButton;
     private FrameLayout layout;
     private PaintCanvas arc;
-    private int endAngle = 0;
-    private int animationPeriod = 2000;
     private CreateAnimation animation;
     private boolean showCanvas;
 
@@ -81,7 +79,7 @@ public class Start extends Activity implements View.OnClickListener,MediaPlayer.
         }
     }
 
-    private void setAnime(int num,int len) throws InterruptedException {
+    private void setAnime(int num,int len) {
         TranslateAnimation translateAnimation = new TranslateAnimation(0, 0, 0, 0);
 
         int winWidth=layout.getWidth();
@@ -242,11 +240,7 @@ public class Start extends Activity implements View.OnClickListener,MediaPlayer.
                         return;
                     }
 
-                    try {
-                        setAnime(finalNote[count[0]],len);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                    setAnime(finalNote[count[0]],len);
 
                     handler.postDelayed(this, len/3);
                 }
