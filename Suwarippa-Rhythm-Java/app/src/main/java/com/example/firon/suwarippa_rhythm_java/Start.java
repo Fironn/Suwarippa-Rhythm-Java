@@ -252,8 +252,6 @@ public class Start extends Activity implements View.OnClickListener,MediaPlayer.
 
         } catch (JSONException e) {
             e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         }
 
     }
