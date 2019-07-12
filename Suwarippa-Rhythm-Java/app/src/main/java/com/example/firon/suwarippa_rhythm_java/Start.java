@@ -38,7 +38,6 @@ public class Start extends Activity implements View.OnClickListener,MediaPlayer.
     private MediaPlayer mediaPlayer;
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
