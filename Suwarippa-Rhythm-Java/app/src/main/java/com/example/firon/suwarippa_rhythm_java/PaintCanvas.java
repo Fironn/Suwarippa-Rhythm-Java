@@ -1,8 +1,8 @@
 package com.example.firon.suwarippa_rhythm_java;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
@@ -21,6 +21,7 @@ public class PaintCanvas extends View {
     private int yval = 0;
     private Boolean viewflg;
     private int caLeft,caTop,caWidth,caHeight;
+    private int press;
 
     public PaintCanvas(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -32,10 +33,25 @@ public class PaintCanvas extends View {
         yval = 450;
     }
 
+    protected void setPress(int press){
+        this.press=press;
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
 
-        canvas.drawColor(Color.argb(125, 0, 0, 255));
+        Resources res = getResources();
+        int color_main_1 = res.getColor(R.color.colorMain1);
+        int color_last_1 = res.getColor(R.color.colorLast1);
+        int color_last_white_1 = res.getColor(R.color.colorLastWhite1);
+        int color_last_2 = res.getColor(R.color.colorLast2);
+        int color_last_white_2 = res.getColor(R.color.colorLastWhite2);
+        int color_last_3 = res.getColor(R.color.colorLast3);
+        int color_last_white_3 = res.getColor(R.color.colorLastWhite3);
+        int color_last_4 = res.getColor(R.color.colorLast4);
+        int color_last_white_4 = res.getColor(R.color.colorLastWhite4);
+
+        canvas.drawColor(color_main_1);
 
         caLeft=this.getLeft();
         caTop=this.getTop();
@@ -50,7 +66,8 @@ public class PaintCanvas extends View {
         float ty3 = ty1+caHeight/2;
 
         paint.setStrokeWidth(10);
-        paint.setColor(Color.YELLOW);
+        if(press==1)paint.setColor(color_last_white_1);
+        else paint.setColor(color_last_1);
         pathUp.moveTo(tx1, ty1);
         pathUp.lineTo(tx2, ty2);
         pathUp.lineTo(tx3, ty3);
@@ -66,7 +83,8 @@ public class PaintCanvas extends View {
         ty3 = ty1+caHeight/2;
 
         paint.setStrokeWidth(10);
-        paint.setColor(Color.BLUE);
+        if(press==2)paint.setColor(color_last_white_2);
+        else paint.setColor(color_last_2);
         pathLeft.moveTo(tx1, ty1);
         pathLeft.lineTo(tx2, ty2);
         pathLeft.lineTo(tx3, ty3);
@@ -82,7 +100,8 @@ public class PaintCanvas extends View {
         ty3 = ty1+caHeight/2;
 
         paint.setStrokeWidth(10);
-        paint.setColor(Color.RED);
+        if(press==3)paint.setColor(color_last_white_3);
+        else paint.setColor(color_last_3);
         pathRight.moveTo(tx1, ty1);
         pathRight.lineTo(tx2, ty2);
         pathRight.lineTo(tx3, ty3);
@@ -98,7 +117,8 @@ public class PaintCanvas extends View {
         ty3 = ty1-caHeight/2;
 
         paint.setStrokeWidth(10);
-        paint.setColor(Color.GREEN);
+        if(press==4)paint.setColor(color_last_white_4);
+        else paint.setColor(color_last_4);
         pathDown.moveTo(tx1, ty1);
         pathDown.lineTo(tx2, ty2);
         pathDown.lineTo(tx3, ty3);
@@ -108,17 +128,12 @@ public class PaintCanvas extends View {
 
         if (viewflg) {
 
-            paint.setColor(Color.GRAY);
-            canvas.drawPath(pathDown, paint);
-
         }else{
             // 描画クリア
-//            canvas.drawColor(0, PorterDuff.Mode.CLEAR);
-            paint.setColor(Color.BLUE);
-            canvas.drawPath(pathDown, paint);
+            canvas.drawColor(color_main_1);
         }
-    }
 
+    }
 
     public void showCanvas(boolean flg){
         viewflg = flg;

@@ -7,38 +7,47 @@
     tools:context=".MainActivity">
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:id="@+id/linearLayout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="center"
         android:orientation="vertical"
-        tools:layout_editor_absoluteY="203dp">
-
-        <Button
-            android:id="@+id/connectButton"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/connect" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:id="@+id/statusValue"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content" />
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:text="すわりっぱ"
+            android:textAlignment="center"
+            android:textColor="@color/colorSub3"
+            android:textSize="36sp"
+            android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/inputValue"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content" />
-
-        <Button
-            android:id="@+id/writeButton"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/write" />
+            android:layout_marginBottom="50dp"
+            android:text="リズム"
+            android:textAlignment="center"
+            android:textColor="@color/colorLast2"
+            android:textSize="36sp"
+            android:textStyle="bold" />
 
         <Button
             android:id="@+id/start"
-            android:layout_width="match_parent"
+            android:layout_width="200dp"
             android:layout_height="wrap_content"
-            android:text="start" />
+            android:background="@drawable/border"
+            android:elevation="0dp"
+            android:padding="5dp"
+            android:text="はじめる"
+            android:textAlignment="center"
+            android:textColor="@color/colorMain2"
+            android:textSize="24sp" />
 
     </LinearLayout>
 
