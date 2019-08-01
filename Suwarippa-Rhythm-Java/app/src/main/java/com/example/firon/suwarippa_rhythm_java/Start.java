@@ -1,11 +1,11 @@
 package com.example.firon.suwarippa_rhythm_java;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
-import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -42,7 +42,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Set;
 import java.util.UUID;
 
@@ -128,18 +129,13 @@ public class Start extends Activity implements Runnable,View.OnClickListener,Med
 
     private ImageView imageView;
 
+    ArrayList<Ranking> list;
+
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.start);
-
-        final Context context = this;
-        BufferedReader in = null;
-
-        writeScore("text"+","+"4"+"\n");
-
-        showRank();
 
         closeRank=(Button)findViewById(id.closeRank);
         rankTable=(TableLayout) findViewById(id.rankTable);
@@ -164,18 +160,24 @@ public class Start extends Activity implements Runnable,View.OnClickListener,Med
 
         connectButton.setOnClickListener(this);
 //        writeButton.setOnClickListener(this);
+        list = new ArrayList<Ranking>();
+
+        showRank();
 
         // Bluetoothのデバイス名を取得
         mAdapter = BluetoothAdapter.getDefaultAdapter();
-        mStatusTextView.setText("SearchDevice");
-        Set< BluetoothDevice > devices = mAdapter.getBondedDevices();
-        for ( BluetoothDevice device : devices){
-            if(device.getName().equals(DEVICE_NAME)){
-                mStatusTextView.setText("find: " + device.getName());
-                mDevice = device;
+
+        if (!(null==mAdapter)) {
+            mStatusTextView.setText("SearchDevice");
+            Set< BluetoothDevice > devices = mAdapter.getBondedDevices();
+            for ( BluetoothDevice device : devices){
+                if(device.getName().equals(DEVICE_NAME)){
+                    mStatusTextView.setText("find: " + device.getName());
+                    mDevice = device;
+                }
             }
+            connect();
         }
-        connect();
     }
 
     public void connect(){
@@ -591,13 +593,7 @@ public class Start extends Activity implements Runnable,View.OnClickListener,Med
                 stop();
                 startButton.setVisibility(View.VISIBLE);
                 name="mayu";
-
-//                SharedPreferences sp = getSharedPreferences("pressRhythm", MODE_PRIVATE);
-//                SharedPreferences.Editor e = sp.edit();
-//                e.putString("name", name);
-//                e.commit();
-//                name="";
-//                name = sp.getString("name",name);
+                scoreInt=80;
                 writeScore(name+","+scoreInt+"\n");
 
                 showRank();
@@ -607,28 +603,31 @@ public class Start extends Activity implements Runnable,View.OnClickListener,Med
     }
 
     private void showRank(){
-        String[] rankList=readScore().split(" ");
-        Log.i("FileAccess", Arrays.toString(rankList));
-        int max=0;
-        String[][] list = new String[0][];
-        for(int i=0;i<rankList.length;i++){
-            list[i]=rankList[i].split(",");
-        }
-        Log.i("FileAccess", Arrays.toString(list));
+        String[] rankList=readScore().trim().split(" ");
+        if(rankList.length>0){
+            int max=0,i=0;
 
-        Log.i("sort", Arrays.toString(list));
-        Arrays.sort(list);
-        Log.i("sort", Arrays.toString(list));
-//        for(int i=0;i<list.length;i++){
-//            addRank(list[i][0], Integer.parseInt(list[i][1]));
-//        }
-        runOnUiThread(new Runnable() {
-
-            public void run() {
-                rankLayout.setVisibility(View.VISIBLE);
-
+            for(i=0;i<rankList.length;i++) {
+                String[] temp = rankList[i].split(",");
+                list.add(new Ranking(Integer.parseInt(temp[1]), temp[0]));//[2]
             }
-        });
+
+            Collections.sort(list);
+            Collections.reverse(list);
+
+            Log.i("sort", list.toString());
+
+            for(i=0;i<list.size();i++){
+                if(i>=10)break;
+                addRank(String.valueOf(i+1),list.get(i).name(),String.valueOf(list.get(i).rank()));
+            }
+
+            runOnUiThread(new Runnable() {
+                public void run() {
+                    rankLayout.setVisibility(View.VISIBLE);
+                }
+            });
+        }
     }
 
     private void stop() {
@@ -641,15 +640,28 @@ public class Start extends Activity implements Runnable,View.OnClickListener,Med
         mediaPlayer = null;
     }
 
-    private void addRank(final String name, final int score) {
+    private void addRank(final String num,final String name, final String score) {
 
         runOnUiThread(new Runnable() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
+            @SuppressLint("WrongConstant")
             public void run() {
+                if(Integer.parseInt(num)==1)rankTable.removeAllViews();
                 TableRow tableRow = new TableRow(getApplicationContext());
                 rankTable.addView(tableRow);
-                TextView text=new TextView(getApplicationContext());
-                text.setText(name);
-                tableRow.addView(text);
+                TextView textNum=new TextView(getApplicationContext());
+                TextView textName=new TextView(getApplicationContext());
+                TextView textScore=new TextView(getApplicationContext());
+
+                textNum.setText(num);
+                textNum.setTextAppearance(R.style.scoreNum);
+                tableRow.addView(textNum);
+                textName.setText(name);
+                textName.setTextAppearance(R.style.scoreName);
+                tableRow.addView(textName);
+                textScore.setText(score);
+                textScore.setTextAppearance(R.style.scoreRank);
+                tableRow.addView(textScore);
             }
         });
 
@@ -681,7 +693,6 @@ public class Start extends Activity implements Runnable,View.OnClickListener,Med
 
             BufferedReader reader= new BufferedReader(new InputStreamReader(in,"UTF-8"));
             while( (lineBuffer = reader.readLine()) != null ){
-//                Log.d("FileAccess",lineBuffer);
                 result+=lineBuffer;
                 result+=" ";
             }
