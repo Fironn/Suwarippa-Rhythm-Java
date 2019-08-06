@@ -16,12 +16,15 @@ import android.os.Message;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.TranslateAnimation;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -50,6 +53,7 @@ import java.util.UUID;
 import static com.example.firon.suwarippa_rhythm_java.R.color;
 import static com.example.firon.suwarippa_rhythm_java.R.id;
 import static com.example.firon.suwarippa_rhythm_java.R.id.frameLayout;
+import static com.example.firon.suwarippa_rhythm_java.R.id.inputName;
 import static com.example.firon.suwarippa_rhythm_java.R.id.inputValue;
 import static com.example.firon.suwarippa_rhythm_java.R.id.start;
 import static com.example.firon.suwarippa_rhythm_java.R.id.statusValue;
@@ -58,18 +62,22 @@ import static com.example.firon.suwarippa_rhythm_java.R.string;
 
 public class Start extends Activity implements Runnable,View.OnClickListener,MediaPlayer.OnCompletionListener {
 
+    private InputMethodManager inputMethodManager;
     private Button closeRank;
+    private Button closeThank;
     private ProgressBar progressBar;
     private Button startButton;
     private TableLayout rankTable;
     private FrameLayout rankLayout;
+    private FrameLayout thankLayout;
     private LinearLayout scoreLayout;
     private FrameLayout layout;
     public TextView score;
     private PaintCanvas arc;
     private boolean showCanvas;
-    private String name="";
+    private String name="NAME1";
     private String SCORE_FILE = "score.txt";
+    private EditText nameEdit;
 
     public int scoreInt=0;
     public int press=0;
@@ -136,18 +144,22 @@ public class Start extends Activity implements Runnable,View.OnClickListener,Med
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.start);
-
+//        deleteFile( SCORE_FILE );
         closeRank=(Button)findViewById(id.closeRank);
         rankTable=(TableLayout) findViewById(id.rankTable);
         rankLayout=(FrameLayout) findViewById(id.rankLayout);
+        thankLayout=(FrameLayout) findViewById(id.thankyou);
         scoreLayout=(LinearLayout) findViewById(id.scoreLayout);
         layout = (FrameLayout) findViewById(frameLayout);
         startButton = (Button) findViewById(start);
+        closeThank = (Button) findViewById(id.closeThank);
         progressBar=(ProgressBar)findViewById(id.ProgressBar);
         score = (TextView) findViewById(id.score);
         startButton.setOnClickListener(this);
         closeRank.setOnClickListener(this);
+        closeThank.setOnClickListener(this);
         arc = this.findViewById(id.arc);
+        nameEdit=(EditText)findViewById(inputName);
 
         arc.showCanvas(true);
         showCanvas = true;
@@ -159,10 +171,10 @@ public class Start extends Activity implements Runnable,View.OnClickListener,Med
 //        writeButton = (Button)findViewById(R.id.writeButton);
 
         connectButton.setOnClickListener(this);
-//        writeButton.setOnClickListener(this);
+
         list = new ArrayList<Ranking>();
 
-        showRank();
+//        showRank();
 
         // Bluetoothのデバイス名を取得
         mAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -342,8 +354,13 @@ public class Start extends Activity implements Runnable,View.OnClickListener,Med
             runOnUiThread(new Runnable() {
                 public void run() {
                     rankLayout.setVisibility(View.INVISIBLE);
+                    scoreInt=0;
                 }
             });
+        } else if(v.equals(closeThank)){
+            thankLayout.setVisibility(View.INVISIBLE);
+            connectButton.setVisibility(View.VISIBLE);
+            score.setText(String.valueOf(scoreInt));
         }
     }
 
@@ -574,9 +591,7 @@ public class Start extends Activity implements Runnable,View.OnClickListener,Med
 
         if (mediaPlayer == null) {
             if (audioSetup()){
-                Toast.makeText(getApplication(), "Rread audio file", Toast.LENGTH_SHORT).show();
-            }
-            else{
+            }else{
                 Toast.makeText(getApplication(), "Error: read audio file", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -592,11 +607,29 @@ public class Start extends Activity implements Runnable,View.OnClickListener,Med
             public void onCompletion(MediaPlayer mp) {
                 stop();
                 startButton.setVisibility(View.VISIBLE);
-                name="mayu";
-                scoreInt=80;
-                writeScore(name+","+scoreInt+"\n");
-
+                connectButton.setVisibility(View.INVISIBLE);
                 showRank();
+
+                nameEdit.setOnKeyListener(new View.OnKeyListener() {
+
+                    //コールバックとしてonKey()メソッドを定義
+                    @Override
+                    public boolean onKey(View v, int keyCode, KeyEvent event) {
+                        //イベントを取得するタイミングには、ボタンが押されてなおかつエンターキーだったときを指定
+                        if((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)){
+                            String text = nameEdit.getText().toString();
+                            name=text;
+                            writeScore(name+","+scoreInt+"\n");
+                            rankLayout.setVisibility(View.INVISIBLE);
+                            scoreInt=0;
+                            thankLayout.setVisibility(View.VISIBLE);
+
+
+                            return true;
+                        }
+                        return false;
+                    }
+                });
             }
         });
 
@@ -604,10 +637,10 @@ public class Start extends Activity implements Runnable,View.OnClickListener,Med
 
     private void showRank(){
         String[] rankList=readScore().trim().split(" ");
-        if(rankList.length>0){
-            int max=0,i=0;
+        if(rankList.length>1) {
+            int max = 0, i = 0;
 
-            for(i=0;i<rankList.length;i++) {
+            for (i = 0; i < rankList.length; i++) {
                 String[] temp = rankList[i].split(",");
                 list.add(new Ranking(Integer.parseInt(temp[1]), temp[0]));//[2]
             }
@@ -617,17 +650,19 @@ public class Start extends Activity implements Runnable,View.OnClickListener,Med
 
             Log.i("sort", list.toString());
 
-            for(i=0;i<list.size();i++){
-                if(i>=10)break;
-                addRank(String.valueOf(i+1),list.get(i).name(),String.valueOf(list.get(i).rank()));
+            for (i = 0; i < list.size(); i++) {
+                if (i >= 10) break;
+                addRank(String.valueOf(i + 1), list.get(i).name(), String.valueOf(list.get(i).rank()));
             }
-
-            runOnUiThread(new Runnable() {
-                public void run() {
-                    rankLayout.setVisibility(View.VISIBLE);
-                }
-            });
+        }else{
+            addRank("1","Player0","10");
         }
+
+        runOnUiThread(new Runnable() {
+            public void run() {
+                rankLayout.setVisibility(View.VISIBLE);
+            }
+        });
     }
 
     private void stop() {
@@ -653,10 +688,10 @@ public class Start extends Activity implements Runnable,View.OnClickListener,Med
                 TextView textName=new TextView(getApplicationContext());
                 TextView textScore=new TextView(getApplicationContext());
 
-                textNum.setText(num);
+                textNum.setText(num+" ");
                 textNum.setTextAppearance(R.style.scoreNum);
                 tableRow.addView(textNum);
-                textName.setText(name);
+                textName.setText(name+" ");
                 textName.setTextAppearance(R.style.scoreName);
                 tableRow.addView(textName);
                 textScore.setText(score);

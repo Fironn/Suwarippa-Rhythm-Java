@@ -15,6 +15,7 @@
         <item name="android:background">#00000000</item>
         <item name="android:ems">10</item>
         <item name="android:inputType">number</item>
+        <item name="android:paddingBottom">30dp</item>
         <item name="android:textAlignment">viewStart</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:textAppearance">@style/TextAppearance.AppCompat.Button</item>
@@ -27,6 +28,7 @@
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">match_parent</item>
         <item name="android:layout_weight">4</item>
+        <item name="android:paddingBottom">30dp</item>
         <item name="android:layout_marginLeft">10dp</item>
         <item name="android:background">#00000000</item>
         <item name="android:textAlignment">viewStart</item>
@@ -39,6 +41,7 @@
 
     <style name="scoreRank">
         <item name="android:layout_width">0dp</item>
+        <item name="android:paddingBottom">30dp</item>
         <item name="android:layout_height">match_parent</item>
         <item name="android:layout_weight">2</item>
         <item name="android:background">#00000000</item>
